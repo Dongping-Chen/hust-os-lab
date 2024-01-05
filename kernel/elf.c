@@ -13,17 +13,37 @@ typedef struct elf_info_t {
   process *p;
 } elf_info;
 
-//
-// the implementation of allocater. allocates memory space for later segment loading
-//
+
 static void *elf_alloc_mb(elf_ctx *ctx, uint64 elf_pa, uint64 elf_va, uint64 size) {
   // directly returns the virtual address as we are in the Bare mode in lab1_x
+/**
+ * @brief Allocates memory for the ELF file in the Bare mode.
+ *
+ * This function is used to allocate memory for the ELF file in the Bare mode.
+ * It directly returns the virtual address as we are in the Bare mode in lab1_x.
+ *
+ * @param ctx The ELF context.
+ * @param elf_pa The physical address of the ELF file.
+ * @param elf_va The virtual address of the ELF file.
+ * @param size The size of the ELF file.
+ * @return A pointer to the allocated memory.
+ */
+static void *elf_alloc_mb(elf_ctx *ctx, uint64 elf_pa, uint64 elf_va, uint64 size) {
+  return (void *)elf_va;
+}
   return (void *)elf_va;
 }
 
-//
-// actual file reading, using the spike file interface.
-//
+
+/**
+ * Reads data from an ELF file into a specified memory location.
+ *
+ * @param ctx The ELF context containing the file information.
+ * @param dest The destination memory location to store the read data.
+ * @param nb The number of bytes to read from the ELF file.
+ * @param offset The offset in the ELF file to start reading from.
+ * @return The number of bytes read, or an error code if the read operation fails.
+ */
 static uint64 elf_fpread(elf_ctx *ctx, void *dest, uint64 nb, uint64 offset) {
   elf_info *msg = (elf_info *)ctx->info;
   // call spike file utility to load the content of elf file into memory.
@@ -32,9 +52,16 @@ static uint64 elf_fpread(elf_ctx *ctx, void *dest, uint64 nb, uint64 offset) {
   return spike_file_pread(msg->f, dest, nb, offset);
 }
 
-//
-// init elf_ctx, a data structure that loads the elf.
-//
+/**
+ * Initializes the ELF context with the provided information.
+ *
+ * @param ctx   Pointer to the ELF context structure.
+ * @param info  Pointer to additional information.
+ * @return      The status of the ELF initialization.
+ *              - EL_OK if initialization is successful.
+ *              - EL_EIO if there is an I/O error.
+ *              - EL_NOTELF if the provided ELF file is not valid.
+ */
 elf_status elf_init(elf_ctx *ctx, void *info) {
   ctx->info = info;
 
@@ -47,9 +74,12 @@ elf_status elf_init(elf_ctx *ctx, void *info) {
   return EL_OK;
 }
 
-//
-// load the elf segments to memory regions as we are in Bare mode in lab1
-//
+/**
+ * Loads an ELF file into memory.
+ *
+ * @param ctx The ELF context containing the file data and metadata.
+ * @return The status of the ELF loading process.
+ */
 elf_status elf_load(elf_ctx *ctx) {
   // elf_prog_header structure is defined in kernel/elf.h
   elf_prog_header ph_addr;
@@ -80,10 +110,12 @@ typedef union {
   char *argv[MAX_CMDLINE_ARGS];
 } arg_buf;
 
-//
-// returns the number (should be 1) of string(s) after PKE kernel in command line.
-// and store the string(s) in arg_bug_msg.
-//
+/**
+ * Parses the command line arguments received from the HTIFSYS_getmainvars frontend call.
+ * 
+ * @param arg_bug_msg Pointer to the arg_buf structure that holds the command arguments.
+ * @return The number of strings after the PKE kernel in the command line.
+ */
 static size_t parse_args(arg_buf *arg_bug_msg) {
   // HTIFSYS_getmainvars frontend call reads command arguments to (input) *arg_bug_msg
   long r = frontend_syscall(HTIFSYS_getmainvars, (uint64)arg_bug_msg,
@@ -101,9 +133,19 @@ static size_t parse_args(arg_buf *arg_bug_msg) {
   return pk_argc - arg;
 }
 
-//
-// load the elf of user application, by using the spike file interface.
-//
+/**
+ * @brief Loads binary code from a host ELF file into a process.
+ * 
+ * This function retrieves the command line arguments, opens the ELF file,
+ * initializes the ELF loader context, loads the ELF file into memory,
+ * and sets the entry point of the process to the virtual address specified
+ * in the ELF header.
+ * 
+ * @param p Pointer to the process structure.
+ */
+void load_bincode_from_host_elf(process *p) {
+  // ... function implementation ...
+}
 void load_bincode_from_host_elf(process *p) {
   arg_buf arg_bug_msg;
 

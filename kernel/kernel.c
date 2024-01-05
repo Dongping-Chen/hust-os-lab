@@ -12,10 +12,15 @@
 // process is a structure defined in kernel/process.h
 process user_app;
 
-//
-// load the elf, and construct a "process" (with only a trapframe).
-// load_bincode_from_host_elf is defined in elf.c
-//
+/**
+ * @brief Loads the user program into the process.
+ * 
+ * This function sets up the trapframe, kstack, and stack pointer for the process.
+ * It then calls the load_bincode_from_host_elf() function to load the binary code
+ * from the host ELF file into the process.
+ * 
+ * @param proc The process structure representing the user program.
+ */
 void load_user_program(process *proc) {
   // USER_TRAP_FRAME is a physical address defined in kernel/config.h
   proc->trapframe = (trapframe *)USER_TRAP_FRAME;
@@ -28,9 +33,16 @@ void load_user_program(process *proc) {
   load_bincode_from_host_elf(proc);
 }
 
-//
-// s_start: S-mode entry point of riscv-pke OS kernel.
-//
+/**
+ * @brief Function to start the supervisor mode.
+ * 
+ * This function enters the supervisor mode and performs the necessary setup for memory mapping.
+ * It sets the satp register to 0, indicating that the virtual address is equal to the physical address.
+ * The user application is then loaded into memory and executed.
+ * Finally, the function switches to user mode using the switch_to() function.
+ * 
+ * @return 0
+ */
 int s_start(void) {
   sprint("Enter supervisor mode...\n");
   // Note: we use direct (i.e., Bare mode) for memory mapping in lab1.
