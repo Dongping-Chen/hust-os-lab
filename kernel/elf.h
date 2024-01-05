@@ -50,6 +50,12 @@ typedef enum elf_status_t {
 
 } elf_status;
 
+/**
+ * @brief Structure representing the context of an ELF file.
+ * 
+ * This structure contains information about an ELF file, including a pointer to additional information
+ * and the ELF header.
+ */
 typedef struct elf_ctx_t {
   void *info;
   elf_header ehdr;

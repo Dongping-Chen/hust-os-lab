@@ -38,12 +38,19 @@ riscv_regs g_itrframe;
 // in Intel series CPUs. it records the details of devices and memory of the
 // platform simulated using Spike.
 //
+/**
+ * @brief Initializes the Device Tree Blob (DTB).
+ *
+ * This function initializes the Device Tree Blob (DTB) by querying the Host-Target InterFace (HTIF)
+ * and obtaining information about the emulated memory. If HTIF is available, it prints a message
+ * indicating its availability. It also prints the size of the emulated memory in megabytes.
+ *
+ * @param dtb The address of the Device Tree Blob (DTB).
+ */
 void init_dtb(uint64 dtb) {
-  // defined in spike_interface/spike_htif.c, enabling Host-Target InterFace (HTIF)
   query_htif(dtb);
   if (htif) sprint("HTIF is available!\r\n");
 
-  // defined in spike_interface/spike_memory.c, obtain information about emulated memory
   query_mem(dtb);
   sprint("(Emulated) memory size: %ld MB\n", g_mem_size >> 20);
 }
@@ -52,6 +59,17 @@ void init_dtb(uint64 dtb) {
 // delegate (almost all) interrupts and most exceptions to S-mode.
 // after delegation, syscalls will handled by the PKE OS kernel running in S-mode.
 //
+/**
+ * @brief Delegates traps to supervisor mode and sets interrupt and exception delegation registers.
+ *
+ * This function checks if the processor supports supervisor mode and aborts if it does not.
+ * It then sets the interrupt and exception delegation registers with the specified values.
+ *
+ * @note The macros used in this function are defined in kernel/riscv.h.
+ *
+ * @param None
+ * @return None
+ */
 static void delegate_traps() {
   // supports_extension macro is defined in kernel/riscv.h
   if (!supports_extension('S')) {
@@ -79,6 +97,11 @@ static void delegate_traps() {
 //
 // enabling timer interrupt (irq) in Machine mode. added @lab1_3
 //
+/**
+ * Initializes the timer for the specified hart (hardware thread).
+ *
+ * @param hartid The ID of the hart.
+ */
 void timerinit(uintptr_t hartid) {
   // fire timer irq after TIMER_INTERVAL from now.
   *(uint64*)CLINT_MTIMECMP(hartid) = *(uint64*)CLINT_MTIME + TIMER_INTERVAL;
@@ -90,6 +113,23 @@ void timerinit(uintptr_t hartid) {
 //
 // m_start: machine mode C entry point.
 //
+/**
+ * @brief Starts the machine mode execution.
+ *
+ * This function initializes various components and settings required for machine mode execution.
+ * It initializes the spike file interface, HTIF (Host-Target InterFace) and memory using the Device Table Blob (DTB),
+ * saves the address of the trap frame for interrupts in M mode to "mscratch",
+ * sets the previous privilege mode to Supervisor (S), and sets the M Exception Program Counter to s_start.
+ * It also sets up the trap handling vector for machine mode, enables machine-mode interrupts,
+ * delegates all interrupts and exceptions to supervisor mode, enables interrupt handling in supervisor mode,
+ * initializes timing, and switches to supervisor mode (S mode) by jumping to s_start().
+ *
+ * @param hartid The ID of the hardware thread.
+ * @param dtb The address of the Device Table Blob (DTB).
+ */
+void m_start(uintptr_t hartid, uintptr_t dtb) {
+  // code implementation
+}
 void m_start(uintptr_t hartid, uintptr_t dtb) {
   // init the spike file interface (stdin,stdout,stderr)
   // functions with "spike_" prefix are all defined in codes under spike_interface/,
