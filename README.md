@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ## about riscv-pke (Proxy Kernel for Education, a.k.a. PKE) ##
 ----------
 
